@@ -1,0 +1,11 @@
+{
+    "name": "pcsupport/freerouter",
+    "description": "FreeRouter where the easy routing begins the pain ends.",
+    "type": "library",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "FreeRouter\\": "src"
+        }
+    }
+}
