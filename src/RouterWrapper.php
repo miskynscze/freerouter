@@ -4,15 +4,34 @@ declare(strict_types=1);
 namespace FreeRouter;
 
 use FreeRouter\Interface\IRouter;
+use FreeRouter\Interface\IRouterController;
+use FreeRouter\Tools\ServerRequest;
 
 class RouterWrapper
 {
 
-    public function config(): RouterWrapper {
+    private RouterConfig $config;
+
+    public function config(RouterConfig $config): RouterWrapper {
+        $this->config = $config;
         return $this;
     }
 
-    public function run(IRouter $class): void {
+    public function run(IRouter|IRouterController $class): void {
+        if(!isset($this->config)) {
+            echo "Config was not set, creating default";
+            $this->config = RouterConfig::getConfig();
+        }
+
+        if($class instanceof IRouterController) {
+            $rController = new RouterController();
+            $rController->run($class);
+        } elseif($class instanceof IRouter) {
+            $this->router($class);
+        }
+    }
+
+    private function router(IRouter $class): void {
         $reflection = new \ReflectionClass($class::class);
         $lastFunction = null;
         $method = null;
@@ -38,7 +57,7 @@ class RouterWrapper
                 }
             }
 
-            $found = $this->request($request, $method);
+            $found = ServerRequest::request($request, $method);
         }
 
         if($found) {
@@ -46,29 +65,5 @@ class RouterWrapper
             $class->{$lastFunction}();
             $class->after();
         }
-    }
-
-    private function request($path, $method): bool {
-        $request = $this->getRequestUri();
-
-        if($path === $request && $this->isMethod($method)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private function isMethod(int $method): bool {
-        $reqMethod = $_SERVER["REQUEST_METHOD"];
-        $reqMethod = constant("FreeRouter\Attributes\RequestMethod::$reqMethod");
-
-        return ($reqMethod === $method);
-    }
-
-    private function getRequestUri() {
-        $exploded = explode("/", $_SERVER["REQUEST_URI"]);
-        array_shift($exploded);
-
-        return "/" . $exploded[0];
     }
 }
