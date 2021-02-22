@@ -7,10 +7,18 @@ namespace FreeRouter\Tools;
 class ServerRequest
 {
 
+    private static array $temporaryData;
+
     public static function request(string $path, int $method): bool {
+        $firstPosRemove = strpos($path, "/{");
+        $toRemove = substr($path, $firstPosRemove, strlen($path));
+
+        $path = str_replace($toRemove, "", $path);
         $request = self::getRequestUri();
 
-        return $path === $request && self::isMethod($method);
+        self::$temporaryData = $request;
+
+        return $path === $request["request"] && self::isMethod($method);
     }
 
     public static function isMethod(int $method): bool {
@@ -24,6 +32,16 @@ class ServerRequest
         $exploded = explode("/", $_SERVER["REQUEST_URI"]);
         array_shift($exploded);
 
-        return "/" . $exploded[0];
+        $request = "/" . $exploded[0];
+        array_shift($exploded);
+
+        return [
+            "request" => $request,
+            "attributes" => $exploded
+        ];
+    }
+
+    public static function getTemporaryData(): array {
+        return self::$temporaryData;
     }
 }

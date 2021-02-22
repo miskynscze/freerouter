@@ -5,6 +5,7 @@ namespace FreeRouter;
 
 use FreeRouter\Interface\IRouter;
 use FreeRouter\Interface\IRouterController;
+use FreeRouter\Tools\ClassRunner;
 use FreeRouter\Tools\ServerRequest;
 
 class RouterWrapper
@@ -61,9 +62,12 @@ class RouterWrapper
         }
 
         if($found) {
-            $class->before();
-            $class->{$lastFunction}();
-            $class->after();
+            $classRunner = new ClassRunner();
+            $classRunner
+                ->setClass($class)
+                ->setAttributes(ServerRequest::getTemporaryData()["attributes"])
+                ->setPathTemplate($request)
+                ->runFunction($lastFunction);
         }
     }
 }
