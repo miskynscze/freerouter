@@ -1,6 +1,7 @@
 {
     "name": "miskynscze/freerouter",
     "description": "FreeRouter where the easy routing begins the pain ends.",
+    "minimum-stability": "stable",
     "type": "library",
     "require": {},
     "autoload": {
