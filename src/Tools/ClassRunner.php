@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace FreeRouter\Tools;
 
 
+use FreeRouter\Http\Redirect;
+use FreeRouter\Interface\IController;
 use FreeRouter\Interface\IRouter;
 use FreeRouter\Interface\IRouterController;
 use JetBrains\PhpStorm\Pure;
@@ -35,7 +37,8 @@ class ClassRunner
     public function runFunction(string $func): void {
         $mapped = $this->mapArrayAttributes($this->getEmptyArrayParams($this->pathTemplate), $this->attributes);
         $this->class->before();
-        $this->class->{$func}(...$mapped);
+        $data = $this->class->{$func}(...$mapped);
+        $this->observe($data);
         $this->class->after();
     }
 
@@ -79,5 +82,22 @@ class ClassRunner
         }
 
         return $unmapped;
+    }
+
+    private function observe($data): void {
+        if($data instanceof Redirect) {
+            $data->redirect();
+        }
+
+        $classReflection = new \ReflectionClass($this->class);
+
+        if(count($classReflection->getAttributes()) > 0) {
+            $classCall = $classReflection->getAttributes()[0]->getName();
+
+            /** @var IController $class */
+            $class = new $classCall();
+
+            $class->render($data);
+        }
     }
 }
