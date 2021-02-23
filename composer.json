@@ -3,10 +3,7 @@
     "description": "FreeRouter where the easy routing begins the pain ends.",
     "minimum-stability": "dev",
     "type": "library",
-    "require": {
-        "ext-http": "*",
-        "ext-json": "*"
-    },
+    "require": {},
     "autoload": {
         "psr-4": {
             "FreeRouter\\": "src"
