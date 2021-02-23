@@ -4,8 +4,7 @@
     "minimum-stability": "dev",
     "type": "library",
     "require": {
-        "ext-http": "*",
-        "ext-json": "*"
+        "phpunit/phpunit": "10.0.x-dev"
     },
     "autoload": {
         "psr-4": {

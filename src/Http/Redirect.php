@@ -19,7 +19,6 @@ class Redirect
     }
 
     public function redirect(): void {
-        http_send_status($this->status);
         header("Location: $this->redirectUrl");
         exit();
     }

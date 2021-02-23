@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace FreeRouter\Attributes;
+namespace FreeRouter\Attributes\Class;
 
 use Attribute;
 use FreeRouter\Interface\IController;
