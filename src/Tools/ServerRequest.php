@@ -10,10 +10,13 @@ class ServerRequest
     private static array $temporaryData;
 
     public static function request(string $path, int $method): bool {
-        $firstPosRemove = strpos($path, "/{");
-        $toRemove = substr($path, $firstPosRemove, strlen($path));
+        if(str_contains($path, "{")) {
+            $firstPosRemove = strpos($path, "/{");
+            $toRemove = substr($path, $firstPosRemove, strlen($path));
 
-        $path = str_replace($toRemove, "", $path);
+            $path = str_replace($toRemove, "", $path);
+        }
+
         $request = self::getRequestUri();
 
         self::$temporaryData = $request;
