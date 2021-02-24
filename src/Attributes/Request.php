@@ -9,9 +9,13 @@ use Attribute;
 class Request
 {
 
+    private string $path;
+
     public function __construct(string $path) {
         $this->path = $path;
     }
 
-    private string $path;
+    public function getPath(): string {
+        return $this->path;
+    }
 }
