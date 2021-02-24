@@ -17,7 +17,10 @@ class ServerRequest
             $path = str_replace($toRemove, "", $path);
         }
 
-        $request = self::getRequestUri();
+        $exploded = explode("/", $path);
+        array_shift($exploded);
+
+        $request = self::getRequestUri(count($exploded));
 
         self::$temporaryData = $request;
 
@@ -31,12 +34,17 @@ class ServerRequest
         return $reqMethod === $method;
     }
 
-    public static function getRequestUri() {
+    public static function getRequestUri($pathSize = 1) {
         $exploded = explode("/", $_SERVER["REQUEST_URI"]);
         array_shift($exploded);
 
-        $request = "/" . $exploded[0];
-        array_shift($exploded);
+        $request = "";
+
+        for($i = 0; $i < $pathSize; $i++) {
+            $request .= "/" . $exploded[$i];
+        }
+
+        $exploded = array_slice($exploded, $pathSize);
 
         return [
             "request" => $request,
