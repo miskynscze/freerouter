@@ -3,7 +3,7 @@ Painless routing for your PHP 8+ project with REST support.
 
 #### Installation (Still WIP)
 ```bash
-composer require miskynscze/freerouter:dev-dev-master
+composer require miskynscze/freerouter
 ```
 
 #### Example (Basic)
