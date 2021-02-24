@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace FreeRouter;
 
+use FreeRouter\Attributes\Class\RequestPrefix;
+use FreeRouter\Attributes\Method;
+use FreeRouter\Attributes\Request;
 use FreeRouter\Interface\IRouter;
 use FreeRouter\Interface\IRouterController;
 use FreeRouter\Tools\ClassRunner;
@@ -26,14 +29,15 @@ class RouterWrapper
 
         if($class instanceof IRouterController) {
             $rController = new RouterController();
-            $rController->run($class);
+            $rController->run($class, $this);
         } elseif($class instanceof IRouter) {
             $this->router($class);
         }
     }
 
-    private function router(IRouter $class): void {
+    public function router(IRouter $class): void {
         $reflection = new \ReflectionClass($class::class);
+        $prefix = $this->getClassPrefix($reflection);
         $lastFunction = null;
         $method = null;
         $request = null;
@@ -51,10 +55,11 @@ class RouterWrapper
             }
 
             foreach ($method->getAttributes() as $attribute) {
-                if(str_contains($attribute->getName(), "Request")) {
-                    $request = $attribute->getArguments()[0];
-                } elseif(str_contains($attribute->getName(), "Method")) {
-                    $method = $attribute->getArguments()[0];
+                $instance = $attribute->newInstance();
+                if($instance instanceof Request) {
+                    $request = $prefix . $instance->getPath();
+                } elseif($instance instanceof Method) {
+                    $method = $instance->getMethod();
                 }
             }
 
@@ -69,5 +74,18 @@ class RouterWrapper
                 ->setPathTemplate($request)
                 ->runFunction($lastFunction);
         }
+    }
+
+    private function getClassPrefix(\ReflectionClass $class): string {
+        $attributes = $class->getAttributes();
+
+        foreach ($attributes as $attribute) {
+            $instance = $attribute->newInstance();
+            if($instance instanceof RequestPrefix) {
+                return $instance->getPrefix();
+            }
+        }
+
+        return "";
     }
 }

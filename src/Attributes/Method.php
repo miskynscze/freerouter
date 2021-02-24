@@ -9,9 +9,13 @@ use Attribute;
 class Method
 {
 
+    private int $method;
+
     public function __construct($method) {
         $this->method = $method;
     }
 
-    private int $method;
+    public function getMethod(): int {
+        return $this->method;
+    }
 }
