@@ -7,8 +7,8 @@ namespace FreeRouter\Attributes;
 class RequestMethod
 {
 
-    const GET = 1;
-    const POST = 2;
-    const DELETE = 3;
-    const PUT = 4;
+    public const GET = 1;
+    public const POST = 2;
+    public const DELETE = 3;
+    public const PUT = 4;
 }
