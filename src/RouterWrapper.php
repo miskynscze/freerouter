@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace FreeRouter;
 
 use FreeRouter\Attributes\Class\RequestPrefix;
+use FreeRouter\Attributes\Method;
+use FreeRouter\Attributes\Request;
 use FreeRouter\Interface\IRouter;
 use FreeRouter\Interface\IRouterController;
 use FreeRouter\Tools\ClassRunner;
@@ -53,10 +55,11 @@ class RouterWrapper
             }
 
             foreach ($method->getAttributes() as $attribute) {
-                if(str_contains($attribute->getName(), "Request")) {
-                    $request = $prefix . $attribute->getArguments()[0];
-                } elseif(str_contains($attribute->getName(), "Method")) {
-                    $method = $attribute->getArguments()[0];
+                $instance = $attribute->newInstance();
+                if($instance instanceof Request) {
+                    $request = $prefix . $instance->getPath();
+                } elseif($instance instanceof Method) {
+                    $method = $instance->getMethod();
                 }
             }
 
@@ -77,10 +80,8 @@ class RouterWrapper
         $attributes = $class->getAttributes();
 
         foreach ($attributes as $attribute) {
-            if(str_contains($attribute->getName(), "RequestPrefix")) {
-                /** @var RequestPrefix $instance */
-                $instance = $attribute->newInstance();
-
+            $instance = $attribute->newInstance();
+            if($instance instanceof RequestPrefix) {
                 return $instance->getPrefix();
             }
         }
