@@ -3,11 +3,13 @@
     "description": "FreeRouter where the easy routing begins the pain ends.",
     "minimum-stability": "stable",
     "type": "library",
-    "require": {
-    },
     "autoload": {
         "psr-4": {
             "FreeRouter\\": "src"
         }
+    },
+    "require-dev": {
+        "codeception/module-phpbrowser": "^1.0.0",
+        "codeception/module-asserts": "^1.0.0"
     }
 }

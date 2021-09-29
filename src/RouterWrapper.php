@@ -41,6 +41,7 @@ class RouterWrapper
         $prefix = $this->getClassPrefix($reflection);
         $lastFunction = null;
         $method = null;
+        $requestMethod = null;
         $request = null;
         $found = false;
 
@@ -58,12 +59,12 @@ class RouterWrapper
             //Using prefix (get, post, put...) as a prefix of a function
             if($this->config->isUsingMethodAsPrefix()) {
                 foreach (RequestMethod::REQUEST_HELPER as $key => $value) {
-                    if($method) {
+                    if($requestMethod === null) {
                         continue;
                     }
 
                     if(str_starts_with($lastFunction, $value)) {
-                        $method = $key;
+                        $requestMethod = $key;
                     }
                 }
             }
@@ -72,18 +73,18 @@ class RouterWrapper
                 $instance = $attribute->newInstance();
                 if($instance instanceof Request) {
                     $request = $prefix . $instance->getPath();
-                } elseif(!$this->config->isUsingMethodAsPrefix() && $instance instanceof Method) {
-                    $method = $instance->getMethod();
+                } elseif($requestMethod === null && $instance instanceof Method) {
+                    $requestMethod = $instance->getMethod();
                 }
             }
 
             //Using default value method if value is not defined
             //TODO: In future should throw error
-            if(!$method) {
-                $method = $this->config->getDefaultMethod();
+            if($requestMethod === null) {
+                $requestMethod = $this->config->getDefaultMethod();
             }
 
-            $found = ServerRequest::request($request, $method);
+            $found = ServerRequest::request($request, $requestMethod);
         }
 
         if($found) {
