@@ -6,6 +6,7 @@ namespace FreeRouter;
 use FreeRouter\Attributes\Class\RequestPrefix;
 use FreeRouter\Attributes\Method;
 use FreeRouter\Attributes\Request;
+use FreeRouter\Attributes\RequestMethod;
 use FreeRouter\Interface\IRouter;
 use FreeRouter\Interface\IRouterController;
 use FreeRouter\Tools\ClassRunner;
@@ -54,20 +55,39 @@ class RouterWrapper
                 continue;
             }
 
+            //Using prefix (get, post, put...) as a prefix of a function
+            if($this->config->isUsingMethodAsPrefix()) {
+                foreach (RequestMethod::REQUEST_HELPER as $key => $value) {
+                    if($method) {
+                        continue;
+                    }
+
+                    if(str_starts_with($lastFunction, $value)) {
+                        $method = $key;
+                    }
+                }
+            }
+
             foreach ($method->getAttributes() as $attribute) {
                 $instance = $attribute->newInstance();
                 if($instance instanceof Request) {
                     $request = $prefix . $instance->getPath();
-                } elseif($instance instanceof Method) {
+                } elseif(!$this->config->isUsingMethodAsPrefix() && $instance instanceof Method) {
                     $method = $instance->getMethod();
                 }
+            }
+
+            //Using default value method if value is not defined
+            //TODO: In future should throw error
+            if(!$method) {
+                $method = $this->config->getDefaultMethod();
             }
 
             $found = ServerRequest::request($request, $method);
         }
 
         if($found) {
-            $classRunner = new ClassRunner();
+            $classRunner = new ClassRunner($this->config);
             $classRunner
                 ->setClass($class)
                 ->setAttributes(ServerRequest::getTemporaryData()["attributes"])

@@ -8,15 +8,21 @@ use FreeRouter\Http\Redirect;
 use FreeRouter\Interface\IController;
 use FreeRouter\Interface\IRouter;
 use FreeRouter\Interface\IRouterController;
+use FreeRouter\RouterConfig;
 use JetBrains\PhpStorm\Pure;
 
 class ClassRunner
 {
 
+    private RouterConfig $config;
     private IRouterController|IRouter $class;
     private array $attributes;
     private array $attributesNullable = [];
     private string $pathTemplate;
+
+    public function __construct(RouterConfig $config) {
+        $this->config = $config;
+    }
 
     public function setClass(IRouter|IRouterController $class): ClassRunner {
         $this->class = $class;
@@ -36,10 +42,17 @@ class ClassRunner
 
     public function runFunction(string $func): void {
         $mapped = $this->mapArrayAttributes($this->getEmptyArrayParams($this->pathTemplate), $this->attributes);
-        $this->class->before();
+
+        if($this->config->isAllowedBeAfFunctions()) {
+            $this->class->before();
+        }
+
         $data = $this->class->{$func}(...$mapped);
         $this->observe($data);
-        $this->class->after();
+
+        if($this->config->isAllowedBeAfFunctions()) {
+            $this->class->after();
+        }
     }
 
     private function getEmptyArrayParams(string $path): array {

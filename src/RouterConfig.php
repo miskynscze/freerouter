@@ -13,6 +13,7 @@ class RouterConfig
     protected int $DEFAULT_METHOD   = RequestMethod::GET;
     protected bool $BEAF_FUNCTIONS  = true;
     protected bool $CACHE_ROUTE     = false;
+    protected bool $PREFIX_METHODS  = false;
 
     #[Pure]
     public static function getConfig(): RouterConfig {
@@ -47,5 +48,13 @@ class RouterConfig
 
     public function isCacheRoute(): bool {
         return $this->CACHE_ROUTE;
+    }
+
+    public function useMethodAsPrefix(bool $use): void {
+        $this->PREFIX_METHODS = $use;
+    }
+
+    public function isUsingMethodAsPrefix(): bool {
+        return $this->PREFIX_METHODS;
     }
 }
